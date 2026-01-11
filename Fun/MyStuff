@@ -1,18 +1,11 @@
---!strict
---[[ 
-    SPAWN // INDUSTRIAL UI CORE
-    VERSION: 4.1 (UPDATED)
-    AUTHOR: PRINCIPAL ENGINEER (GEMINI)
-    CHANGELOG: Added Labels, Buttons, Textboxes
-]]
-
+--who needs comments 
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 local RunService = game:GetService("RunService")
 
--- // 1. SYSTEM CONFIGURATION
+
 local CONFIG_FILE = "SPAWN_CONFIG.json"
 local LOGO_URL = "https://i.ibb.co/NgcLLmpS/OIP-4030729546-QPq-Zs-Ve8lrk3trb-XPo-FY0w-Ha-Ha-removebg-preview.png"
 local LOGO_FILE = "SPAWN_BRAND_ASSET.png"
@@ -28,7 +21,7 @@ local THEME = {
     Input       = Color3.fromRGB(12, 12, 12)       -- Textbox Background
 }
 
--- // 2. PERSISTENCE ENGINE
+
 local Persistence = {}
 local CurrentConfig = {
     Position = {X = 0.5, Y = 0.5},
@@ -52,7 +45,7 @@ function Persistence.Save()
     if writefile then writefile(CONFIG_FILE, HttpService:JSONEncode(CurrentConfig)) end
 end
 
--- // 3. ASSET PIPELINE
+
 local function GetBranding(): string
     if not (writefile and isfile and getcustomasset) then return "" end
     if isfile(LOGO_FILE) then return getcustomasset(LOGO_FILE) end
@@ -65,7 +58,7 @@ local function GetBranding(): string
     return ""
 end
 
--- // 4. UTILITY
+
 local function CreateStroke(parent: GuiObject, thickness: number, transparency: number?)
     local s = Instance.new("UIStroke")
     s.Color = THEME.Stroke
@@ -76,7 +69,7 @@ local function CreateStroke(parent: GuiObject, thickness: number, transparency: 
     return s
 end
 
--- // 5. CORE LIBRARY
+
 local Spawn = {}
 
 function Spawn.Create(title: string)
@@ -109,7 +102,7 @@ function Spawn.Create(title: string)
 
     CreateStroke(Main, 1.5)
 
-    -- [HEADER]
+    
     local Header = Instance.new("Frame")
     Header.Size = UDim2.new(1, 0, 0, 36)
     Header.BackgroundColor3 = THEME.Header
@@ -141,7 +134,7 @@ function Spawn.Create(title: string)
     Title.TextXAlignment = Enum.TextXAlignment.Left
     Title.Parent = Header
 
-    -- [TAB STRIP]
+    
     local TabStrip = Instance.new("ScrollingFrame")
     TabStrip.Size = UDim2.new(1, 0, 0, 32)
     TabStrip.Position = UDim2.new(0, 0, 0, 36)
@@ -164,7 +157,7 @@ function Spawn.Create(title: string)
     Sep.BorderSizePixel = 0
     Sep.Parent = Main
 
-    -- [PAGE CONTAINER]
+    
     local PageContainer = Instance.new("Frame")
     PageContainer.Size = UDim2.new(1, 0, 1, -69)
     PageContainer.Position = UDim2.new(0, 0, 0, 69)
@@ -172,7 +165,7 @@ function Spawn.Create(title: string)
     PageContainer.ClipsDescendants = true
     PageContainer.Parent = Main
 
-    -- [DRAG LOGIC]
+    
     local dragging, dragInput, dragStart, startPos
     Header.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -198,7 +191,7 @@ function Spawn.Create(title: string)
         end
     end)
 
-    -- // WINDOW API
+
     local WindowAPI = {}
     local FirstTab = true
 
@@ -257,10 +250,10 @@ function Spawn.Create(title: string)
 
         if FirstTab then FirstTab = false; Open() end
 
-        -- // COMPONENT API
+        
         local CompAPI = {}
 
-        -- [LABEL]
+        
         function CompAPI.Label(text: string)
             local Frame = Instance.new("Frame")
             Frame.Size = UDim2.new(1, 0, 0, 26)
@@ -279,7 +272,7 @@ function Spawn.Create(title: string)
             Text.Parent = Frame
         end
 
-        -- [BUTTON]
+        
         function CompAPI.Button(text: string, callback: () -> ())
             local Frame = Instance.new("TextButton")
             Frame.Size = UDim2.new(1, 0, 0, 32)
@@ -299,7 +292,7 @@ function Spawn.Create(title: string)
             Label.TextXAlignment = Enum.TextXAlignment.Center
             Label.Parent = Frame
 
-            -- Hover Effect
+            
             Frame.MouseEnter:Connect(function()
                 TweenService:Create(Label, TweenInfo.new(0.2), {TextColor3 = THEME.Accent}):Play()
                 TweenService:Create(Frame.UIStroke, TweenInfo.new(0.2), {Color = THEME.Accent}):Play()
@@ -320,7 +313,7 @@ function Spawn.Create(title: string)
             end)
         end
 
-        -- [TEXTBOX]
+        
         function CompAPI.Textbox(id: string, text: string, placeholder: string, callback: (string) -> ())
             -- Load saved text if available
             local savedText = CurrentConfig.Textboxes[id] or ""
@@ -356,7 +349,7 @@ function Spawn.Create(title: string)
             
             local IStroke = CreateStroke(InputBox, 1, 0.5)
 
-            -- Handle Input
+            
             InputBox.FocusLost:Connect(function(enterPressed)
                 local val = InputBox.Text
                 CurrentConfig.Textboxes[id] = val
@@ -377,7 +370,7 @@ function Spawn.Create(title: string)
             end
         end
 
-        -- [TOGGLE]
+        
         function CompAPI.Toggle(id: string, text: string, callback: (boolean) -> ())
             local state = CurrentConfig.Toggles[id] or false
             if state then task.spawn(function() callback(state) end) end
@@ -432,7 +425,7 @@ function Spawn.Create(title: string)
             end)
         end
 
-        -- [SLIDER]
+        
         function CompAPI.Slider(id: string, text: string, min: number, max: number, default: number, callback: (number) -> ())
             local val = CurrentConfig.Sliders[id] or default
             
@@ -514,7 +507,7 @@ function Spawn.Create(title: string)
             task.spawn(function() callback(val) end)
         end
 
-        -- [DROPDOWN]
+        
         function CompAPI.Dropdown(id: string, text: string, options: {string}, callback: (string) -> ())
             local selection = CurrentConfig.Dropdowns[id] or options[1]
             local isOpen = false
