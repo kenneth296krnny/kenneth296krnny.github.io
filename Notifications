@@ -1,0 +1,125 @@
+--[[
+    SPAWN NOTIFICATIONS v1.0
+    Standalone notification system for the Spawn Framework.
+]]
+
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+
+local Notify = {}
+
+-- Create the container once
+local NotificationGui = Instance.new("ScreenGui")
+NotificationGui.Name = "SpawnNotifications"
+NotificationGui.Parent = CoreGui
+NotificationGui.DisplayOrder = 999
+
+local Holder = Instance.new("Frame")
+Holder.Name = "Holder"
+Holder.Parent = NotificationGui
+Holder.BackgroundTransparency = 1
+Holder.Position = UDim2.new(1, -310, 0, 10)
+Holder.Size = UDim2.new(0, 300, 1, -20)
+
+local UIList = Instance.new("UIListLayout")
+UIList.Parent = Holder
+UIList.VerticalAlignment = Enum.VerticalAlignment.Bottom
+UIList.SortOrder = Enum.SortOrder.LayoutOrder
+UIList.Padding = UDim.new(0, 10)
+
+-- // NOTIFY FUNCTION //
+function Notify.New(Title, Description, Duration)
+    Duration = Duration or 5
+    
+    local Card = Instance.new("Frame")
+    Card.Name = "NotificationCard"
+    Card.Parent = Holder
+    Card.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Card.BorderSizePixel = 0
+    Card.Size = UDim2.new(1, 0, 0, 80)
+    Card.Transparency = 1 -- Start invisible for tween
+    
+    -- Styling
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0, 6)
+    Corner.Parent = Card
+    
+    local Stroke = Instance.new("UIStroke")
+    Stroke.Color = Color3.fromRGB(60, 60, 60)
+    Stroke.Thickness = 1
+    Stroke.Transparency = 1
+    Stroke.Parent = Card
+
+    local Accent = Instance.new("Frame")
+    Accent.Name = "Accent"
+    Accent.Parent = Card
+    Accent.BackgroundColor3 = Color3.fromRGB(0, 122, 204)
+    Accent.BorderSizePixel = 0
+    Accent.Size = UDim2.new(0, 4, 1, 0)
+    Accent.Transparency = 1
+
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Parent = Card
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.Position = UDim2.new(0, 15, 0, 8)
+    TitleLabel.Size = UDim2.new(1, -20, 0, 20)
+    TitleLabel.Font = Enum.Font.GothamBold
+    TitleLabel.Text = Title
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleLabel.TextSize = 14
+    TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TitleLabel.TextTransparency = 1
+
+    local DescLabel = Instance.new("TextLabel")
+    DescLabel.Parent = Card
+    DescLabel.BackgroundTransparency = 1
+    DescLabel.Position = UDim2.new(0, 15, 0, 28)
+    DescLabel.Size = UDim2.new(1, -30, 0, 40)
+    DescLabel.Font = Enum.Font.Gotham
+    DescLabel.Text = Description
+    DescLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    DescLabel.TextSize = 12
+    DescLabel.TextWrapped = true
+    DescLabel.TextXAlignment = Enum.TextXAlignment.Left
+    DescLabel.TextYAlignment = Enum.TextYAlignment.Top
+    DescLabel.TextTransparency = 1
+
+    -- Animation Logic
+    Card.Position = UDim2.new(1, 50, 0, 0) -- Start off-screen right
+    
+    local TweenIn = TweenService:Create(Card, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundTransparency = 0
+    })
+    
+    local StrokeIn = TweenService:Create(Stroke, TweenInfo.new(0.4), {Transparency = 0})
+    local AccentIn = TweenService:Create(Accent, TweenInfo.new(0.4), {Transparency = 0})
+    local TextIn = TweenService:Create(TitleLabel, TweenInfo.new(0.4), {TextTransparency = 0})
+    local DescIn = TweenService:Create(DescLabel, TweenInfo.new(0.4), {TextTransparency = 0})
+
+    TweenIn:Play()
+    StrokeIn:Play()
+    AccentIn:Play()
+    TextIn:Play()
+    DescIn:Play()
+
+    -- Auto Dismissal
+    task.delay(Duration, function()
+        local TweenOut = TweenService:Create(Card, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+            Position = UDim2.new(1, 50, 0, 0),
+            BackgroundTransparency = 1
+        })
+        
+        TweenService:Create(Stroke, TweenInfo.new(0.4), {Transparency = 1}):Play()
+        TweenService:Create(Accent, TweenInfo.new(0.4), {Transparency = 1}):Play()
+        TweenService:Create(TitleLabel, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
+        TweenService:Create(DescLabel, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
+        
+        TweenOut:Play()
+        TweenOut.Completed:Connect(function()
+            Card:Destroy()
+        end)
+    end)
+end
+
+return Notify
